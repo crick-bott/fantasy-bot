@@ -3,3 +3,4 @@ python-dotenv
 requests
 urllib3
 pytz
+aiohttp
