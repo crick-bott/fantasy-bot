@@ -2,7 +2,6 @@ import os
 import logging
 from datetime import datetime
 from pytz import timezone
-from pytz import UTC
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.constants import ParseMode
