@@ -1,4 +1,5 @@
 import os
+import asyncio
 import logging
 from datetime import datetime
 from pytz import timezone
@@ -10,6 +11,11 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes
 )
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+
 from cricket_api import (
     get_today_matches,        # ✅ use the correct one you already have
     get_fantasy_xi,
@@ -234,25 +240,30 @@ async def get_upcoming_matches():
         return "📭 No upcoming matches found."
 
     return "📅 *Upcoming Matches:*\n\n" + "\n\n".join(upcoming_matches)
+import logging
+from telegram import Update
+from telegram.constants import ChatAction, ParseMode
+from telegram.ext import ContextTypes
+
 # ✅ Error handler
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     logging.error(f"Error: {context.error}")
     
-    if update and hasattr(update, "message") and update.message:
+    if isinstance(update, Update) and update.message:
         try:
             await update.message.reply_text("⚠️ Something went wrong. Please try again later.")
         except Exception as e:
             logging.error(f"⚠️ Failed to send error message to user: {e}")
 
-from telegram.constants import ChatAction
-
+# ✅ /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.chat.send_action(action=ChatAction.TYPING)  # 👈 Add this
+    await update.message.chat.send_action(action=ChatAction.TYPING)
     await update.message.reply_text(
         "👋 Welcome to *FantasyBot!*\n\n"
         "Type /help to see all available commands.",
         parse_mode=ParseMode.MARKDOWN
     )
+
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.chat.send_action(action=ChatAction.TYPING)  # 👈 Add this
     await update.message.reply_text(
@@ -1020,16 +1031,16 @@ def register_handlers(app):
 
     app.add_handler(MessageHandler(filters.COMMAND, unknown_command))
 import asyncio
-from telegram.ext import ApplicationBuilder
+from telegram.ext import ApplicationBuilder, CommandHandler
 
 async def main():
-    print("✅ TELEGRAM_BOT_TOKEN:", TELEGRAM_BOT_TOKEN)
-    print("🔐 RAPIDAPI_KEY:", RAPIDAPI_KEY)
-
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
-    register_handlers(app)
 
-    print("🚀 Bot is running... Press Ctrl+C to stop.")
+    app.add_handler(CommandHandler("start", start))
+
+    # Register the error handler globally
+    app.add_error_handler(error_handler)
+
     await app.run_polling()
 
 if __name__ == "__main__":
