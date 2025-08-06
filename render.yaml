@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: fantasy-bot
+    runtime: python
+    pythonVersion: 3.11.9
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash start.sh
