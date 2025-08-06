@@ -1,4 +1,6 @@
-pip install --upgrade pip==25.1.1
-#!/bin/bash
-echo "Starting Fantasy Bot..."
-python bot.py
+services:
+  - type: web
+    name: fantasy-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash start.sh
