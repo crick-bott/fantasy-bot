@@ -1,24 +1,22 @@
-import httpx
-from dotenv import load_dotenv
-import os
+import asyncio
+import aiohttp
 
-# Load .env variables
-load_dotenv()
+CRICKDATA_API_KEY = "06dcaf5e-a5bb-40c6-bc73-1ff5d97a7a5f"
 
-# ✅ Use env variable name (not the key itself)
-CRICKETDATA_API_KEY = os.getenv("CRICKETDATA_API_KEY")
+async def test_api():
+    url = f"https://api.cricketdata.org/v1/match/live?apikey={CRICKDATA_API_KEY}"
+    try:
+        timeout = aiohttp.ClientTimeout(total=10)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with session.get(url) as resp:
+                print(f"Status: {resp.status}")
+                if resp.status == 200:
+                    data = await resp.json()  # Parse JSON directly
+                    print(data)
+                else:
+                    print(f"Failed to fetch data: {resp.reason} (HTTP {resp.status})")
+    except Exception as e:
+        print(f"Error: {e}")
 
-# 🔗 API endpoint
-url = f"https://api.cricketdata.org/v1/match/live?apikey={CRICKETDATA_API_KEY}"
-
-try:
-    response = httpx.get(url, timeout=10)
-    print("Status Code:", response.status_code)
-
-    if response.status_code == 200:
-        print("✅ Response JSON:", response.json())
-    else:
-        print("❌ Error:", response.text)
-
-except Exception as e:
-    print("❗ Exception occurred:", e)
+if __name__ == "__main__":
+    asyncio.run(test_api())

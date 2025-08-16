@@ -1,18 +1,20 @@
+import os
 import requests
 
-# ✅ Your actual RapidAPI key (must be in quotes)
-CRICKETDATA_API_KEY = "d7e83232-90d1-4588-bd4f-4884717df392"
+# Use your API key here directly or from env
+CRICKDATA_API_KEY = "06dcaf5e-a5bb-40c6-bc73-1ff5d97a7a5f"
 
-url = "https://cricbuzz-cricket.p.rapidapi.com/teams/v1/international"
-headers = {
-    "X-RapidAPI-Key": CRICKETDATA_API_KEY,
-    "X-RapidAPI-Host": "cricbuzz-cricket.p.rapidapi.com"
+url = "https://rest.cricketapi.com/rest/v2/series/"
+
+HEADERS = {
+    "X-API-Key": "06dcaf5e-a5bb-40c6-bc73-1ff5d97a7a5f",  # Use your API key here correctly
 }
 
-response = requests.get(url, headers=headers)
+try:
+    response = requests.get(url, headers=HEADERS, timeout=10)
+    response.raise_for_status()  # Raise HTTPError for bad responses
+    data = response.json()  # Parse JSON response
 
-if response.status_code == 200:
-    data = response.json()
     team_ids = []
 
     print("📋 List of International Teams with IDs:\n")
@@ -25,7 +27,8 @@ if response.status_code == 200:
 
     print("\n📌 Paste this line into your main code:\n")
     print(f"team_ids = {team_ids}")
-else:
-    print(f"❌ Failed to fetch teams: {response.status_code}")
-    print("🔁 Response Text:", response.text)
 
+except requests.exceptions.RequestException as e:
+    print(f"❌ Failed to fetch teams: {e}")
+    if 'response' in locals() and response is not None:
+        print("🔁 Response Text:", response.text)

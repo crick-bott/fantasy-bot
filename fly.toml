@@ -1,0 +1,36 @@
+app = "fantasy-bot"
+primary_region = "bom"  # Mumbai region
+
+[build]
+  image = "python:3.11-slim"
+
+[env]
+  TELEGRAM_BOT_TOKEN = "8391514200:AAE3DLKQbPiobZTnqUGC4skF3vWdZMe2Isk"
+  CRICKDATA_API_KEY="06dcaf5e-a5bb-40c6-bc73-1ff5d97a7a5f"
+  PYTHONUNBUFFERED = "1"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+
+  # HTTP ports for webhook handling (80 and 443)
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  # Expose internal port 8080 (for long polling or non-HTTP TCP traffic)
+  [[services.ports]]
+    port = 8080
+    handlers = []
+
+  # TCP health check for the service on port 8080
+  [[services.tcp_checks]]
+    interval = 10000      # every 10 seconds
+    timeout = 2000        # 2 seconds timeout
+    grace_period = "30s"
+    restart_limit = 6
+
